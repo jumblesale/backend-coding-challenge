@@ -4,6 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
+pytest = "*"
+requests = "*"
+mypy = "*"
+typing-extensions = "*"
+attrs = "*"
+pyhamcrest = "*"
 
 [dev-packages]
 
