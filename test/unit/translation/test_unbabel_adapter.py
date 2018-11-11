@@ -168,7 +168,7 @@ def test_it_gets_from_url_with_headers(
     create_adapter.get_translation(uid=uid)
 
     # assert
-    mock_requests.post.assert_called_once_with(
+    mock_requests.get.assert_called_once_with(
         url='example.com/translation/ac1a53a264/',
         headers={
             'Authorization': 'ApiKey charles:123xyz',
