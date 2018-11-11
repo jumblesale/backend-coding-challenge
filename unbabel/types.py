@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import NewType, NamedTuple, Optional
+from typing import NewType, NamedTuple, Optional, List
 
 from typing_extensions import Protocol
 
@@ -13,13 +13,16 @@ class TranslationFailedException(Exception):
 class StatusOption(Enum):
     translating = 'translating'
     completed = 'completed'
+    new = 'new'
+    unknown = 'unknown'
 
 
 def string_to_status_option(status: str) -> StatusOption:
     return {
         'translating': StatusOption.translating,
         'completed':   StatusOption.completed,
-    }[status]
+        'new':         StatusOption.new,
+    }.get(status, StatusOption.unknown)
 
 
 Translation = NamedTuple('Translation', [
@@ -47,4 +50,7 @@ class SupportsPerformingTranslations(Protocol):
         ...
 
     def get_translation(self, uid: Uid) -> Optional[Translation]:
+        ...
+
+    def get_all_translations(self) -> List[Translation]:
         ...

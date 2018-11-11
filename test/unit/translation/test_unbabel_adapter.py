@@ -41,6 +41,36 @@ def mock_successful_get_response():
 
 
 @pytest.fixture
+def mock_successful_get_all_response():
+    """
+    From https://developers.unbabel.com/docs/translation-1
+    """
+    yield mock.Mock(
+        status_code=200,
+        json=lambda: {
+            "meta": {
+                "limit":       20,
+                "next":        None,
+                "offset":      0,
+                "previous":    None,
+                "total_count": 3
+            },
+            "objects": [
+                {
+                    "order_number": 1,
+                    "price": 10,
+                    "source_language": "en",
+                    "status": "new",
+                    "target_language": "pt",
+                    "text_format": "text",
+                    "uid": "30292308e7"
+                },
+            ]
+        }
+    )
+
+
+@pytest.fixture
 def create_adapter():
     yield unbabel_adapter.UnbabelAdapter(
         user_name='charles',
@@ -230,3 +260,24 @@ def test_it_throws_if_request_goes_wrong(
 
     # assert
     assert_that(str(e), contains_string('error message'))
+
+
+def test_it_gets_all_translations_from_url_with_headers(
+        mock_requests:                    mock.Mock,
+        create_adapter:                   SupportsPerformingTranslations,
+        mock_successful_get_all_response: mock.Mock,
+):
+    # arrange
+    mock_requests.get.return_value = mock_successful_get_all_response
+
+    # act
+    create_adapter.get_all_translations()
+
+    # assert
+    mock_requests.get.assert_called_once_with(
+        url='example.com/translation/',
+        headers={
+            'Authorization': 'ApiKey charles:123xyz',
+            'Content-Type': 'application/json',
+        },
+    )
