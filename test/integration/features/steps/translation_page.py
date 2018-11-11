@@ -19,3 +19,15 @@ def step_impl(context, path: str):
 def step_impl(context, status):
     response = context.response
     assert_that(response.status_code, equal_to(int(status)))
+
+
+@step('I have data with "{key}" set to "{value}"')
+def step_impl(context, key, value):
+    if not hasattr(context, 'data'):
+        context.data = {}
+    context.data[key] = value
+
+
+@when('I "post" that data to "{path}"')
+def step_impl(context, path):
+    context.response = context.client.post(path, data=context.data)
