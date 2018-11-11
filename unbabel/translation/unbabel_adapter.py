@@ -87,6 +87,9 @@ def get_translation(
         headers=_create_headers(user_name=user_name, api_key=api_key),
     )
 
+    if response.status_code == 404:
+        return None
+
     json_data = response.json()
 
     return create_translation(

@@ -2,7 +2,7 @@ from unittest import mock
 from unittest.mock import ANY
 
 import pytest
-from hamcrest import assert_that, equal_to, contains_string
+from hamcrest import assert_that, equal_to, contains_string, is_
 
 from unbabel.translation import unbabel_adapter
 from unbabel.types import SupportsPerformingTranslations, Uid, TranslationFailedException, Translation, StatusOption
@@ -196,3 +196,18 @@ def test_it_returns_translation_data(
         text='Hello, world!',
         translated_text=None,
     )))
+
+
+def test_it_returns_none_if_translation_is_not_found(
+        mock_requests:                mock.Mock,
+        create_adapter:               SupportsPerformingTranslations,
+):
+    # arrange
+    uid = Uid('ac1a53a264')
+    mock_requests.get.return_value = mock.Mock(status_code=404)
+
+    # act
+    result = create_adapter.get_translation(uid=uid)
+
+    # assert
+    assert_that(result, is_(None))
