@@ -17,10 +17,10 @@ def get_translations(
         translation_adapter: SupportsPerformingTranslations
 ) -> List[Translation]:
     all_translations = translation_adapter.get_all_translations()
-    full_translations = list(map(
+    full_translations = [t for t in list(map(
         lambda t: translation_adapter.get_translation(t.uid),
-        all_translations
-    ))
+        all_translations,
+    )) if t is not None]
 
     # filter out None values before comparing
     sorted_translations = sorted(

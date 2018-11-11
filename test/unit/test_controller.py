@@ -85,3 +85,20 @@ def test_it_sorts_translations_by_translation_length_longest_to_shortest(
         (Uid('1'), 'shorter just 15'),
         (Uid('3'), None),
     ]))
+
+
+def test_it_ignores_translations_which_could_not_be_found(
+        mock_translation_adapter: mock.Mock,
+):
+    # arrange
+    mock_translation_adapter.get_translation = MagicMock(side_effect=[
+        _create_get_translation('1'),
+        None,
+    ])
+    test_controller = controller.Controller(mock_translation_adapter)
+
+    # act
+    result = test_controller.get_translations()
+
+    # assert
+    assert_that(len(result), equal_to(1))
