@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask
 
 from unbabel.controller import Controller as TranslationController
@@ -33,8 +35,8 @@ def test_config() -> Flask:
 
 
 def dev_config() -> Flask:
-    user_name = os.environ.get('USERNAME')
-    api_key = os.environ.get('API_KEY')
+    user_name = os.environ.get('USERNAME', '')
+    api_key = os.environ.get('API_KEY', '')
     base_url = 'https://sandbox.unbabel.com/tapi/v2'
     translation_adapter = UnbabelAdapter(
         user_name=user_name,

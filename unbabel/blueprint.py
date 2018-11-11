@@ -12,20 +12,20 @@ def create_translation_page_blueprint(
         template_folder='templates'
     )
 
-    @translation_page_blueprint.route('/', methods=['GET'])
-    def translation_page():
-        return render_template(
+    @translation_page_blueprint.route('/', methods=['GET'])  # type: ignore
+    def translation_page() -> None:
+        render_template(
             'translation.j2',
             translations=translation_controller.get_translations(),
         )
 
-    @translation_page_blueprint.route('/', methods=['POST'])
-    def submit_translation():
+    @translation_page_blueprint.route('/', methods=['POST'])  # type: ignore
+    def submit_translation() -> None:
         form_data = request.form
         translation_controller.submit_translation(
             text=form_data['text']
         )
-        return render_template(
+        render_template(
             'translation.j2',
             translations=translation_controller.get_translations(),
         )
