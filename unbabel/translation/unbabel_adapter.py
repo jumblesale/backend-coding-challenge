@@ -44,24 +44,6 @@ def _create_headers(user_name: str, api_key: str) -> Mapping[str, str]:
     }
 
 
-def _request_translation(
-        text:      str,
-        user_name: str,
-        api_key:   str,
-        base_url:  str,
-):
-    return requests.post(
-        url=f'{base_url}/translation',
-        headers=_create_headers(user_name=user_name, api_key=api_key),
-        data={
-            'source_language': 'en',
-            'target_language': 'es',
-            'text_format':     'text',
-            'text':            text,
-        }
-    )
-
-
 def _create_translation_from_response_json(response_json: dict) -> Translation:
     return create_translation(
         uid=response_json['uid'],
@@ -77,11 +59,15 @@ def translate(
         api_key:   str,
         base_url:  str,
 ) -> Uid:
-    response = _request_translation(
-        text=text,
-        user_name=user_name,
-        api_key=api_key,
-        base_url=base_url,
+    response = requests.post(
+        url=f'{base_url}/translation',
+        headers=_create_headers(user_name=user_name, api_key=api_key),
+        data={
+            'source_language': 'en',
+            'target_language': 'es',
+            'text_format':     'text',
+            'text':            text,
+        }
     )
 
     if response.status_code // 100 != 2:
@@ -106,7 +92,7 @@ def get_translation(
     if response.status_code == 404:
         return None
 
-    if response.status_code == 200:
+    if response.status_code != 200:
         raise TranslationFailedException(response.text)
 
     json_data = response.json()
@@ -123,6 +109,9 @@ def get_all_translations(
         url=f'{base_url}/translation/',
         headers=_create_headers(user_name=user_name, api_key=api_key),
     )
+
+    if response.status_code != 200:
+        raise TranslationFailedException(response.text)
 
     response_json = response.json()
 

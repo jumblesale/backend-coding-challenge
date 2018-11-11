@@ -23,24 +23,6 @@ def mock_successful_post_response():
 
 
 @pytest.fixture
-def mock_successful_get_response():
-    yield mock.Mock(
-        status_code=200,
-        json=lambda: {
-            "balance":         99937.0,
-            "client":          "username",
-            "price":           6.0,
-            "source_language": "en",
-            "status":          "translating",
-            "target_language": "pt",
-            "text":            "Hello, world!",
-            "text_format":     "text",
-            "uid":             "ac1a53a264"
-        }
-    )
-
-
-@pytest.fixture
 def create_adapter():
     yield unbabel_adapter.UnbabelAdapter(
         user_name='charles',
@@ -153,6 +135,24 @@ def test_it_throws_if_request_was_unsuccessful(
 
     # assert
     assert_that(str(e), contains_string('error message'))
+
+
+@pytest.fixture
+def mock_successful_get_response():
+    yield mock.Mock(
+        status_code=200,
+        json=lambda: {
+            "balance":         99937.0,
+            "client":          "username",
+            "price":           6.0,
+            "source_language": "en",
+            "status":          "translating",
+            "target_language": "pt",
+            "text":            "Hello, world!",
+            "text_format":     "text",
+            "uid":             "ac1a53a264"
+        }
+    )
 
 
 def test_it_gets_from_url_with_headers(
@@ -318,3 +318,21 @@ def test_it_returns_all_translations_data(
             translated_text=None,
         )
     ]))
+
+
+def test_it_throws_if_get_all_request_goes_wrong(
+        mock_requests:  mock.Mock,
+        create_adapter: SupportsPerformingTranslations,
+):
+    # arrange
+    mock_requests.get.return_value = mock.Mock(
+        status_code=500,
+        text='error message',
+    )
+
+    # act
+    with pytest.raises(TranslationFailedException) as e:
+        create_adapter.get_all_translations()
+
+    # assert
+    assert_that(str(e), contains_string('error message'))
