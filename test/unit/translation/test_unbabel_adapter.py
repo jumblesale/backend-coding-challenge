@@ -41,36 +41,6 @@ def mock_successful_get_response():
 
 
 @pytest.fixture
-def mock_successful_get_all_response():
-    """
-    From https://developers.unbabel.com/docs/translation-1
-    """
-    yield mock.Mock(
-        status_code=200,
-        json=lambda: {
-            "meta": {
-                "limit":       20,
-                "next":        None,
-                "offset":      0,
-                "previous":    None,
-                "total_count": 3
-            },
-            "objects": [
-                {
-                    "order_number": 1,
-                    "price": 10,
-                    "source_language": "en",
-                    "status": "new",
-                    "target_language": "pt",
-                    "text_format": "text",
-                    "uid": "30292308e7"
-                },
-            ]
-        }
-    )
-
-
-@pytest.fixture
 def create_adapter():
     yield unbabel_adapter.UnbabelAdapter(
         user_name='charles',
@@ -262,6 +232,45 @@ def test_it_throws_if_request_goes_wrong(
     assert_that(str(e), contains_string('error message'))
 
 
+@pytest.fixture
+def mock_successful_get_all_response():
+    """
+    From https://developers.unbabel.com/docs/translation-1
+    """
+    yield mock.Mock(
+        status_code=200,
+        json=lambda: {
+            "meta": {
+                "limit":       20,
+                "next":        None,
+                "offset":      0,
+                "previous":    None,
+                "total_count": 3
+            },
+            "objects": [
+                {
+                    "order_number": 1,
+                    "price": 10,
+                    "source_language": "en",
+                    "status": "new",
+                    "target_language": "es",
+                    "text_format": "text",
+                    "uid": "30292308e7"
+                },
+                {
+                    "order_number": 2,
+                    "price": 12,
+                    "source_language": "en",
+                    "status": "translating",
+                    "target_language": "es",
+                    "text_format": "text",
+                    "uid": "30292308e8"
+                },
+            ]
+        }
+    )
+
+
 def test_it_gets_all_translations_from_url_with_headers(
         mock_requests:                    mock.Mock,
         create_adapter:                   SupportsPerformingTranslations,
@@ -281,3 +290,31 @@ def test_it_gets_all_translations_from_url_with_headers(
             'Content-Type': 'application/json',
         },
     )
+
+
+def test_it_returns_all_translations_data(
+        mock_requests:                    mock.Mock,
+        create_adapter:                   SupportsPerformingTranslations,
+        mock_successful_get_all_response: mock.Mock,
+):
+    # arrange
+    mock_requests.get.return_value = mock_successful_get_all_response
+
+    # act
+    result = create_adapter.get_all_translations()
+
+    # assert
+    assert_that(result, equal_to([
+        Translation(
+            uid='30292308e7',
+            status=StatusOption.new,
+            text=None,
+            translated_text=None,
+        ),
+        Translation(
+            uid='30292308e8',
+            status=StatusOption.translating,
+            text=None,
+            translated_text=None,
+        )
+    ]))

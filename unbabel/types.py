@@ -28,7 +28,7 @@ def string_to_status_option(status: str) -> StatusOption:
 Translation = NamedTuple('Translation', [
     ('uid',             Uid),
     ('status',          StatusOption),
-    ('text',            str),
+    ('text',            Optional[str]),
     ('translated_text', Optional[str]),
 ])
 
@@ -36,7 +36,7 @@ Translation = NamedTuple('Translation', [
 def create_translation(
         uid:             str,
         status:          str,
-        text:            str,
+        text:            Optional[str] = None,
         translated_text: Optional[str] = None,
 ) -> Translation:
     return Translation(
