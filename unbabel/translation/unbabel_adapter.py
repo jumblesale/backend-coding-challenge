@@ -19,13 +19,13 @@ class UnbabelAdapter(SupportsPerformingTranslations):
         )
 
 
-def translate(
+def _request_translation(
         text:      str,
         user_name: str,
         api_key:   str,
         base_url:  str,
-) -> Uid:
-    response = requests.post(
+):
+    return requests.post(
         url=f'{base_url}/translation',
         headers={
             'Authorization': f'ApiKey {user_name}:{api_key}',
@@ -38,3 +38,23 @@ def translate(
             'text':            text,
         }
     )
+
+
+def translate(
+        text:      str,
+        user_name: str,
+        api_key:   str,
+        base_url:  str,
+) -> Uid:
+    response = _request_translation(
+        text=text,
+        user_name=user_name,
+        api_key=api_key,
+        base_url=base_url,
+    )
+
+    json_response = response.json()
+
+    print(json_response)
+
+    return Uid(json_response['uid'])

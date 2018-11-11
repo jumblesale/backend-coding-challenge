@@ -2,9 +2,11 @@ from unittest import mock
 from unittest.mock import ANY
 
 import pytest
+from hamcrest import assert_that, equal_to
+from requests import Response
 
 from unbabel.translation import unbabel_adapter
-from unbabel.types import SupportsPerformingTranslations
+from unbabel.types import SupportsPerformingTranslations, Uid
 
 
 @pytest.fixture
@@ -72,3 +74,33 @@ def test_it_sends_text_to_be_translated(
             'text_format':     'text',
         }
     )
+
+
+def test_it_returns_the_response_uid_on_success(
+        create_adapter: SupportsPerformingTranslations,
+        mock_requests:  mock.Mock,
+):
+    # arrange
+    text = 'example text'
+    json_response = {
+        "balance":         99943.0,
+        "client":          "username",
+        "price":           6.0,
+        "source_language": "en",
+        "status":          "new",
+        "target_language": "pt",
+        "text":            "Hello, world!",
+        "text_format":     "text",
+        "uid":             "ac1a53a264"
+    }
+    mock_response = mock.Mock(
+        status_code=200,
+        json=lambda: json_response
+    )
+    mock_requests.post.return_value = mock_response
+
+    # act
+    result = create_adapter.translate(text=text)
+
+    # assert
+    assert_that(result, equal_to(Uid('ac1a53a264')))
