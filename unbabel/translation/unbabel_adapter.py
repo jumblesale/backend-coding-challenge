@@ -29,7 +29,7 @@ class UnbabelAdapter(SupportsPerformingTranslations):
             base_url=self.base_url,
         )
 
-    def get_all_translations(self) -> Optional[Translation]:
+    def get_all_translations(self) -> List[Translation]:
         return get_all_translations(
             user_name=self.user_name,
             api_key=self.api_key,
