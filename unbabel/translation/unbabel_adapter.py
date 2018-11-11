@@ -25,4 +25,16 @@ def translate(
         api_key:   str,
         base_url:  str,
 ) -> Uid:
-    ...
+    response = requests.post(
+        url=f'{base_url}/translation',
+        headers={
+            'Authorization': f'ApiKey {user_name}:{api_key}',
+            'Content-Type':  'application/json',
+        },
+        data={
+            'source_language': 'en',
+            'target_language': 'es',
+            'text_format':     'text',
+            'text':            text,
+        }
+    )

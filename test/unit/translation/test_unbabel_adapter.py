@@ -1,4 +1,5 @@
 from unittest import mock
+from unittest.mock import ANY
 
 import pytest
 
@@ -21,7 +22,7 @@ def create_adapter():
     )
 
 
-def test_it_sets_headers(
+def test_it_posts_to_url_with_headers(
         mock_requests:  mock.Mock,
         create_adapter: SupportsPerformingTranslations,
 ):
@@ -40,5 +41,34 @@ def test_it_sets_headers(
             'Authorization': 'ApiKey charles:123xyz',
             'Content-Type':  'application/json',
         },
-        url='example.com/translation'
+        url='example.com/translation',
+        data=ANY,
+    )
+
+
+def test_it_sends_text_to_be_translated(
+    mock_requests:  mock.Mock,
+    create_adapter: SupportsPerformingTranslations,
+):
+    # arrange
+    text = 'example text'
+
+    # act
+    create_adapter.translate(text=text)
+
+    """
+    From SPEC.md:
+    > Build a basic web app with a simple input field that takes an English (EN) input translates it to Spanish (ES).
+    we'll always go from en to es.
+    """
+    # assert
+    mock_requests.post.assert_called_once_with(
+        headers=ANY,
+        url=ANY,
+        data={
+            'text':            text,
+            'source_language': 'en',
+            'target_language': 'es',
+            'text_format':     'text',
+        }
     )
