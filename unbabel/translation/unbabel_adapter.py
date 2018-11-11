@@ -90,6 +90,9 @@ def get_translation(
     if response.status_code == 404:
         return None
 
+    if response.status_code // 100 != 2:
+        raise TranslationFailedException(response.text)
+
     json_data = response.json()
 
     return create_translation(

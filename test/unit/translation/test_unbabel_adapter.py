@@ -211,3 +211,22 @@ def test_it_returns_none_if_translation_is_not_found(
 
     # assert
     assert_that(result, is_(None))
+
+
+def test_it_throws_if_request_goes_wrong(
+        mock_requests:                mock.Mock,
+        create_adapter:               SupportsPerformingTranslations,
+):
+    # arrange
+    uid = Uid('ac1a53a264')
+    mock_requests.get.return_value = mock.Mock(
+        status_code=500,
+        text='error message',
+    )
+
+    # act
+    with pytest.raises(TranslationFailedException) as e:
+        create_adapter.get_translation(uid=uid)
+
+    # assert
+    assert_that(str(e), contains_string('error message'))
