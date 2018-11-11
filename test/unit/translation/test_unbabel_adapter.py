@@ -15,10 +15,28 @@ def mock_requests():
 
 
 @pytest.fixture
-def mock_successful_response():
+def mock_successful_post_response():
     yield mock.Mock(
         status_code=200,
         json=lambda: {"uid": 'example uid'},
+    )
+
+
+@pytest.fixture
+def mock_successful_get_response():
+    yield mock.Mock(
+        status_code=200,
+        json=lambda: {
+            "balance":         99937.0,
+            "client":          "username",
+            "price":           6.0,
+            "source_language": "en",
+            "status":          "translating",
+            "target_language": "pt",
+            "text":            "Hello, world!",
+            "text_format":     "text",
+            "uid":             "ac1a53a264"
+        }
     )
 
 
@@ -34,11 +52,11 @@ def create_adapter():
 def test_it_posts_to_url_with_headers(
         mock_requests:            mock.Mock,
         create_adapter:           SupportsPerformingTranslations,
-        mock_successful_response: mock.Mock,
+        mock_successful_post_response: mock.Mock,
 ):
     # arrange
     text = 'example text'
-    mock_requests.post.return_value = mock_successful_response
+    mock_requests.post.return_value = mock_successful_post_response
 
     # act
     create_adapter.translate(text=text)
@@ -60,11 +78,11 @@ def test_it_posts_to_url_with_headers(
 def test_it_sends_text_to_be_translated(
     mock_requests:            mock.Mock,
     create_adapter:           SupportsPerformingTranslations,
-    mock_successful_response: mock.Mock,
+    mock_successful_post_response: mock.Mock,
 ):
     # arrange
     text = 'example text'
-    mock_requests.post.return_value = mock_successful_response
+    mock_requests.post.return_value = mock_successful_post_response
 
     # act
     create_adapter.translate(text=text)
@@ -135,3 +153,25 @@ def test_it_throws_if_request_was_unsuccessful(
 
     # assert
     assert_that(str(e), contains_string('error message'))
+
+
+def test_it_gets_from_url_with_headers(
+        mock_requests:                mock.Mock,
+        create_adapter:               SupportsPerformingTranslations,
+        mock_successful_get_response: mock.Mock,
+):
+    # arrange
+    uid = Uid('ac1a53a264')
+    mock_requests.get.return_value = mock_successful_get_response
+
+    # act
+    create_adapter.get_translation(uid=uid)
+
+    # assert
+    mock_requests.post.assert_called_once_with(
+        url='example.com/translation/ac1a53a264/',
+        headers={
+            'Authorization': 'ApiKey charles:123xyz',
+            'Content-Type': 'application/json',
+        },
+    )

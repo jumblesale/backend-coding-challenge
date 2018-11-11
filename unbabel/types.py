@@ -12,3 +12,6 @@ class TranslationFailedException(Exception):
 class SupportsPerformingTranslations(Protocol):
     def translate(self, text: str) -> Uid:
         ...
+
+    def get_translation(self, uid: Uid):
+        ...
