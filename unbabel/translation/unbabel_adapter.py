@@ -3,7 +3,8 @@ from typing import Optional, Mapping
 import attr
 import requests
 
-from unbabel.types import SupportsPerformingTranslations, Uid, TranslationFailedException, Translation
+from unbabel.types import SupportsPerformingTranslations, Uid, TranslationFailedException, Translation, \
+    create_translation
 
 
 @attr.s(frozen=True, auto_attribs=True)
@@ -84,4 +85,13 @@ def get_translation(
     response = requests.get(
         url=f'{base_url}/translation/{str(uid)}/',
         headers=_create_headers(user_name=user_name, api_key=api_key),
+    )
+
+    json_data = response.json()
+
+    return create_translation(
+        uid=json_data['uid'],
+        status=json_data['status'],
+        text=json_data['text'],
+        translated_text=json_data.get('translated_text', None),
     )

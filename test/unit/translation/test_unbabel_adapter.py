@@ -5,7 +5,7 @@ import pytest
 from hamcrest import assert_that, equal_to, contains_string
 
 from unbabel.translation import unbabel_adapter
-from unbabel.types import SupportsPerformingTranslations, Uid, TranslationFailedException
+from unbabel.types import SupportsPerformingTranslations, Uid, TranslationFailedException, Translation, StatusOption
 
 
 @pytest.fixture
@@ -175,3 +175,24 @@ def test_it_gets_from_url_with_headers(
             'Content-Type': 'application/json',
         },
     )
+
+
+def test_it_returns_translation_data(
+        mock_requests:                mock.Mock,
+        create_adapter:               SupportsPerformingTranslations,
+        mock_successful_get_response: mock.Mock,
+):
+    # arrange
+    uid = Uid('ac1a53a264')
+    mock_requests.get.return_value = mock_successful_get_response
+
+    # act
+    result = create_adapter.get_translation(uid=uid)
+
+    # assert
+    assert_that(result, equal_to(Translation(
+        uid=uid,
+        status=StatusOption.translating,
+        text='Hello, world!',
+        translated_text=None,
+    )))
