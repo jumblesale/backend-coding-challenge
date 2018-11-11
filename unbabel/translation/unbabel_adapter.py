@@ -1,7 +1,7 @@
 import attr
 import requests
 
-from unbabel.types import SupportsPerformingTranslations, Uid
+from unbabel.types import SupportsPerformingTranslations, Uid, TranslationFailedException
 
 
 @attr.s(frozen=True, auto_attribs=True)
@@ -53,8 +53,9 @@ def translate(
         base_url=base_url,
     )
 
-    json_response = response.json()
+    if response.status_code // 100 != 2:
+        raise TranslationFailedException(response.text)
 
-    print(json_response)
+    json_response = response.json()
 
     return Uid(json_response['uid'])
