@@ -1,4 +1,4 @@
-from typing import Optional, Mapping
+from typing import Optional, Mapping, List
 
 import attr
 import requests
@@ -29,6 +29,13 @@ class UnbabelAdapter(SupportsPerformingTranslations):
             base_url=self.base_url,
         )
 
+    def get_all_translations(self) -> Optional[Translation]:
+        return get_all_translations(
+            user_name=self.user_name,
+            api_key=self.api_key,
+            base_url=self.base_url,
+        )
+
 
 def _create_headers(user_name: str, api_key: str) -> Mapping[str, str]:
     return {
@@ -52,6 +59,15 @@ def _request_translation(
             'text_format':     'text',
             'text':            text,
         }
+    )
+
+
+def _create_translation_from_response_json(response_json: dict) -> Translation:
+    return create_translation(
+        uid=response_json['uid'],
+        status=response_json['status'],
+        text=response_json.get('text', None),
+        translated_text=response_json.get('translated_text', None),
     )
 
 
@@ -90,14 +106,27 @@ def get_translation(
     if response.status_code == 404:
         return None
 
-    if response.status_code // 100 != 2:
+    if response.status_code == 200:
         raise TranslationFailedException(response.text)
 
     json_data = response.json()
 
-    return create_translation(
-        uid=json_data['uid'],
-        status=json_data['status'],
-        text=json_data['text'],
-        translated_text=json_data.get('translated_text', None),
+    return _create_translation_from_response_json(json_data)
+
+
+def get_all_translations(
+        user_name: str,
+        api_key:   str,
+        base_url:  str,
+) -> List[Translation]:
+    response = requests.get(
+        url=f'{base_url}/translation/',
+        headers=_create_headers(user_name=user_name, api_key=api_key),
     )
+
+    response_json = response.json()
+
+    return list(map(
+        _create_translation_from_response_json,
+        response_json['objects']
+    ))
