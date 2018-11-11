@@ -7,7 +7,7 @@ from unbabel.config import test_config
 @given("I have a test application")
 def step_impl(context):
     context.app = app = test_config()
-    context.client = app.flask_app.test_client()
+    context.client = app.test_client()
 
 
 @when('I visit "{path}"')
