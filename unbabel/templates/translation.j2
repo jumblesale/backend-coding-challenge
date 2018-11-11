@@ -1,3 +1,26 @@
+<!DOCTYPE html>
 <html>
-<h1>hello</h1>
+<head>
+    <title>Translations</title>
+</head>
+<body>
+<h2>Translate:</h2>
+<ul>
+    {% for translation in translations %}
+    <li>
+        <h3>{{ translation.uid }}</h3>
+        <dl>
+            <dt>Status:</dt>
+            <dd>{{ translation.status.value }}</dd>
+            <dt>Text:</dt>
+            <dd>{{ translation.text }}</dd>
+            {% if translation.status.value == 'completed' %}
+            <dt>Translation:</dt>
+            <dd>{{ translation.translated_text }}</dd>
+            {% endif %}
+        </dl>
+    </li>
+    {% endfor %}
+</ul>
+</body>
 </html>

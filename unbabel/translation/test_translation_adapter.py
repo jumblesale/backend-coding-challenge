@@ -18,7 +18,7 @@ class TestTranslationAdapter(SupportsPerformingTranslations):
                 text='text',
                 translated_text='short text'
             ),
-            Uid('abc321'): Translation(
+            Uid('xyz543'): Translation(
                 uid=Uid('xyz543'),
                 status=StatusOption.completed,
                 text='text',
