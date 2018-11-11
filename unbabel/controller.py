@@ -10,7 +10,10 @@ class Controller:
     translation_adapter: SupportsPerformingTranslations
 
     def get_translations(self) -> List[Translation]:
-        return get_translations(self.translation_adapter)
+        return get_translations(translation_adapter=self.translation_adapter)
+
+    def submit_translation(self, text: str) -> None:
+        return submit_translation(text=text, translation_adapter=self.translation_adapter)
 
 
 def get_translations(
@@ -34,3 +37,10 @@ def get_translations(
         *sorted_translations,
         *[t for t in full_translations if t.translated_text is None]
     ]
+
+
+def submit_translation(
+        text:                str,
+        translation_adapter: SupportsPerformingTranslations
+) -> None:
+    translation_adapter.translate(text=text)

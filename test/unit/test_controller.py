@@ -102,3 +102,20 @@ def test_it_ignores_translations_which_could_not_be_found(
 
     # assert
     assert_that(len(result), equal_to(1))
+
+
+def test_it_submits_text_to_get_translated(
+        mock_translation_adapter: mock.Mock,
+):
+    # arrange
+    mock_translation_adapter.translate = MagicMock()
+    test_controller = controller.Controller(mock_translation_adapter)
+    text = 'text'
+
+    # act
+    test_controller.submit_translation(text)
+
+    # assert
+    mock_translation_adapter.translate.assert_called_once_with(
+        text=text,
+    )

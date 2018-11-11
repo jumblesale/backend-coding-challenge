@@ -5,6 +5,12 @@
 </head>
 <body>
 <h2>Translate:</h2>
+<form action="/" method="post">
+    <textarea name="text" id="text"></textarea>
+    <br />
+    <input type="submit">
+</form>
+<h2>Translations:</h2>
 <ul>
     {% for translation in translations %}
     <li>
