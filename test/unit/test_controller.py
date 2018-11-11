@@ -1,36 +1,43 @@
-from typing import Optional
+from typing import Optional, Mapping
 from unittest import mock
 from unittest.mock import call, MagicMock
 
 import pytest
+from hamcrest import equal_to, assert_that
 
 from unbabel.types import Translation, StatusOption, Uid, SupportsPerformingTranslations
 import unbabel.controller as controller
 
 
-def _create_uid():
-    return Uid('xyz543')
+translation_uid_map: Mapping[str, Optional[str]] = {
+    Uid('1'): 'shorter just 15',
+    Uid('2'): 'this is the longest string at a huge 39',
+    Uid('3'): None,
+    Uid('4'): 'this string has length 25'
+}
 
 
 def _create_get_translation(
-        translated_text: Optional[str],
-        status:          Optional[StatusOption] = None,
-        uid:             Optional[str] = None,
+        uid: Optional[str] = None,
 ) -> Translation:
     return Translation(
-        uid=Uid(uid) if uid is not None else _create_uid(),
-        status=status if status is not None else StatusOption.unknown,
+        uid=Uid(uid),
+        status=StatusOption.unknown,
         text='text',
-        translated_text=translated_text,
+        translated_text=translation_uid_map[uid],
     )
+
+
+def _create_uid():
+    return 'xyz543'
 
 
 def _create_get_all_translations():
     return [
-        _create_get_translation('shorter just 15', uid='1'),
-        _create_get_translation('this is the longest string at a huge 39', uid='2'),
-        _create_get_translation(None, uid='3'),
-        _create_get_translation('this string has length 25', uid='4'),
+        _create_get_translation(Uid('1')),
+        _create_get_translation(Uid('2')),
+        _create_get_translation(Uid('3')),
+        _create_get_translation(Uid('4')),
     ]
 
 
@@ -59,3 +66,22 @@ def test_it_gets_full_translation_for_each_translation(
         call(Uid('3')),
         call(Uid('4')),
     ], any_order=True)
+
+
+def test_it_sorts_translations_by_translation_length_longest_to_shortest(
+        mock_translation_adapter: mock.Mock,
+):
+    # arrange
+    test_controller = controller.Controller(mock_translation_adapter)
+
+    # act
+    result = test_controller.get_translations()
+
+    # assert
+    translated_texts = [(t.uid, t.translated_text) for t in result]
+    assert_that(translated_texts, equal_to([
+        (Uid('2'), 'this is the longest string at a huge 39'),
+        (Uid('4'), 'this string has length 25'),
+        (Uid('1'), 'shorter just 15'),
+        (Uid('3'), None),
+    ]))
