@@ -10,6 +10,8 @@ mypy = "*"
 typing-extensions = "*"
 attrs = "*"
 pyhamcrest = "*"
+flask = "*"
+behave = "*"
 
 [dev-packages]
 
