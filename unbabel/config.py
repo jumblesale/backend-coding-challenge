@@ -10,15 +10,13 @@ from unbabel.types import SupportsPerformingTranslations
 
 
 def _create_flask_app(
-        base_url:            str,
+        host:                str,
         translation_adapter: SupportsPerformingTranslations,
         debug:               bool = False,
 ) -> Flask:
     app = Flask(__name__)
-    app.config.from_object({
-        'HOST':  base_url,
-        'DEBUG': debug,
-    })
+    app.debug = debug
+    app.config['SERVER_NAME'] = host
     app.register_blueprint(
         create_translation_page_blueprint(TranslationController(translation_adapter))
     )
@@ -28,7 +26,7 @@ def _create_flask_app(
 
 def test_config() -> Flask:
     return _create_flask_app(
-        base_url='localhost:8888',
+        host='localhost:8888',
         translation_adapter=TestTranslationAdapter(),
         debug=True,
     )
@@ -44,6 +42,7 @@ def dev_config() -> Flask:
         base_url=base_url,
     )
     return _create_flask_app(
-        base_url=base_url,
+        host='localhost:8888',
         translation_adapter=translation_adapter,
+        debug=True,
     )

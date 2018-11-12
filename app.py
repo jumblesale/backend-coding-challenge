@@ -1,3 +1,6 @@
-from unbabel.config import test_config
+from unbabel.config import dev_config
 
-app = test_config()
+app = dev_config()
+
+if __name__ == '__main__':
+    app.run()

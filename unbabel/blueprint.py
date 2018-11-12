@@ -14,7 +14,7 @@ def create_translation_page_blueprint(
 
     @translation_page_blueprint.route('/', methods=['GET'])  # type: ignore
     def translation_page() -> None:
-        render_template(
+        return render_template(
             'translation.j2',
             translations=translation_controller.get_translations(),
         )
@@ -25,7 +25,7 @@ def create_translation_page_blueprint(
         translation_controller.submit_translation(
             text=form_data['text']
         )
-        render_template(
+        return render_template(
             'translation.j2',
             translations=translation_controller.get_translations(),
         )
