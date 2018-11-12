@@ -6,6 +6,20 @@ This solution uses [pipenv](https://pipenv.readthedocs.io/en/latest/).
 To start, run `pipenv install`. To get a shell, run `pipenv shell`.
 To launch the application on `localhost:8888`, run `python app.py`.
 
+The app can be run in `test` mode, in which case a stub `Unbabel` adapter
+is used and no calls are made to the API. Or a `dev` config can be used
+which will use the API's sandbox. Switch between these with the `ENVIRONMENT`
+environment variable. `test` is used by default.
+
+In `dev` mode, the app also requires a `USERNAME` and `API_KEY` environment variable,
+containing the sandbox username and api key respectively.
+
+Example use (from inside a pipenv shell):
+
+```bash
+ENVIRONMENT=dev USERNAME=jumblesale API_KEY=xyz543 python app.py
+```
+
 ## Testing
 
 Unit tests are available using `pytest`. To run them, run `make test-local`.
