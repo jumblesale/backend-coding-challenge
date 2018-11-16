@@ -1,3 +1,4 @@
+import json
 from unittest import mock
 from unittest.mock import ANY
 
@@ -17,7 +18,7 @@ def mock_requests():
 @pytest.fixture
 def mock_successful_post_response():
     yield mock.Mock(
-        status_code=200,
+        status_code=201,
         json=lambda: {"uid": 'example uid'},
     )
 
@@ -78,12 +79,12 @@ def test_it_sends_text_to_be_translated(
     mock_requests.post.assert_called_once_with(
         headers=ANY,
         url=ANY,
-        data={
+        data=json.dumps({
             'text':            text,
             'source_language': 'en',
             'target_language': 'es',
             'text_format':     'text',
-        }
+        }, sort_keys=True)
     )
 
 
@@ -105,7 +106,7 @@ def test_it_returns_the_response_uid_on_success(
         "uid":             "ac1a53a264"
     }
     mock_response = mock.Mock(
-        status_code=200,
+        status_code=201,
         json=lambda: json_response
     )
     mock_requests.post.return_value = mock_response

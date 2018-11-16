@@ -68,7 +68,7 @@ def translate(
             'target_language': 'es',
             'text_format':     'text',
             'text':            text,
-        })
+        }, sort_keys=True)
     )
 
     if response.status_code != 201:

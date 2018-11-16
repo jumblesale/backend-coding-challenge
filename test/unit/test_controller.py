@@ -46,15 +46,31 @@ def mock_translation_adapter() -> SupportsPerformingTranslations:
     yield mock.Mock(
         translate=MagicMock(side_effect=_create_uid),
         get_translation=MagicMock(side_effect=_create_get_translation),
-        get_all_translations=MagicMock(side_effect=_create_get_all_translations),
+    )
+
+
+@pytest.fixture()
+def mock_storage_adapter() -> SupportsPerformingTranslations:
+    yield mock.Mock(
+        store_uid=MagicMock(side_effect=lambda _: None),
+        retrieve_all_uids=MagicMock(side_effect=lambda: [
+            Uid('1'),
+            Uid('2'),
+            Uid('3'),
+            Uid('4'),
+        ]),
     )
 
 
 def test_it_gets_full_translation_for_each_translation(
         mock_translation_adapter: mock.Mock,
+        mock_storage_adapter:     mock.Mock,
 ):
     # arrange
-    test_controller = controller.Controller(mock_translation_adapter)
+    test_controller = controller.Controller(
+        translation_adapter=mock_translation_adapter,
+        storage_adapter=mock_storage_adapter,
+    )
 
     # act
     test_controller.get_translations()
@@ -70,9 +86,13 @@ def test_it_gets_full_translation_for_each_translation(
 
 def test_it_sorts_translations_by_translation_length_longest_to_shortest(
         mock_translation_adapter: mock.Mock,
+        mock_storage_adapter:     mock.Mock,
 ):
     # arrange
-    test_controller = controller.Controller(mock_translation_adapter)
+    test_controller = controller.Controller(
+        translation_adapter=mock_translation_adapter,
+        storage_adapter=mock_storage_adapter,
+    )
 
     # act
     result = test_controller.get_translations()
@@ -89,13 +109,17 @@ def test_it_sorts_translations_by_translation_length_longest_to_shortest(
 
 def test_it_ignores_translations_which_could_not_be_found(
         mock_translation_adapter: mock.Mock,
+        mock_storage_adapter:     mock.Mock,
 ):
     # arrange
     mock_translation_adapter.get_translation = MagicMock(side_effect=[
         _create_get_translation('1'),
         None,
     ])
-    test_controller = controller.Controller(mock_translation_adapter)
+    test_controller = controller.Controller(
+        translation_adapter=mock_translation_adapter,
+        storage_adapter=mock_storage_adapter,
+    )
 
     # act
     result = test_controller.get_translations()
@@ -106,10 +130,14 @@ def test_it_ignores_translations_which_could_not_be_found(
 
 def test_it_submits_text_to_get_translated(
         mock_translation_adapter: mock.Mock,
+        mock_storage_adapter: mock.Mock,
 ):
     # arrange
     mock_translation_adapter.translate = MagicMock()
-    test_controller = controller.Controller(mock_translation_adapter)
+    test_controller = controller.Controller(
+        translation_adapter=mock_translation_adapter,
+        storage_adapter=mock_storage_adapter,
+    )
     text = 'text'
 
     # act
