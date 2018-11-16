@@ -1,3 +1,4 @@
+@slow
 Feature: Requesting a new translation in sandbox
 
   Scenario: Creating a translation
