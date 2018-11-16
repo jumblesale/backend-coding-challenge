@@ -1,0 +1,12 @@
+version: '3'
+services:
+  db:
+    image: postgres:11.1
+    volumes:
+      - ./tmp/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_USER=docker
+      - POSTGRES_DB=postgres
+    ports:
+      - 127.0.0.1:5555:5432
