@@ -2,3 +2,4 @@
 .mypy_cache/
 envs/
 __pycache__/
+tmp/
