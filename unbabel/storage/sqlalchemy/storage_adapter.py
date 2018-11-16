@@ -24,6 +24,6 @@ def store_uid(db: SQLAlchemy, uid: Uid) -> None:
     db.session.commit()
 
 
-def retrieve_all_uids(db: SQLAlchemy):
+def retrieve_all_uids(db: SQLAlchemy) -> List[Uid]:
     uids = db.session.query(Translation).all()
-    return [uid.uid for uid in uids]
+    return [Uid(uid.uid) for uid in uids]

@@ -1,3 +1,4 @@
+import json
 from typing import Optional, Mapping, List
 
 import attr
@@ -62,15 +63,15 @@ def translate(
     response = requests.post(
         url=f'{base_url}/translation',
         headers=_create_headers(user_name=user_name, api_key=api_key),
-        data={
+        data=json.dumps({
             'source_language': 'en',
             'target_language': 'es',
             'text_format':     'text',
             'text':            text,
-        }
+        })
     )
 
-    if response.status_code // 100 != 2:
+    if response.status_code != 201:
         raise TranslationFailedException(response.text)
 
     json_response = response.json()

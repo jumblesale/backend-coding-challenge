@@ -1,14 +1,19 @@
 from behave import *
 from hamcrest import assert_that, equal_to, has_item
 
-from unbabel.config import test_config, create_storage_adapter
-from unbabel.storage.sqlalchemy.storage_adapter import SqlAlchemyStorageAdapter
+from unbabel.config import test_config, create_storage_adapter, dev_config
 from unbabel.types import SupportsStoringUids
 
 
 @given("I have a test application")
 def step_impl(context):
     context.app = app = test_config()
+    context.client = app.test_client()
+
+
+@given("I have a dev application")
+def step_impl(context):
+    context.app = app = dev_config()
     context.client = app.test_client()
 
 
@@ -58,3 +63,15 @@ def step_impl(context):
 @then('I get uid "{uid}"')
 def step_impl(context, uid):
     assert_that(context.uids, has_item(uid))
+
+
+@when("I request a new translation")
+def step_impl(context):
+    text = 'Sphinx of black quartz, judge my vow'
+    context.client.post('/', data={'text': text})
+
+
+@then("I can see that translation")
+def step_impl(context):
+    response = context.client.get('/')
+    one = 1

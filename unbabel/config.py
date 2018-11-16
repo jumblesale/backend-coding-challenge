@@ -23,6 +23,7 @@ def _create_flask_app(
     app.debug = debug
     app.config['SERVER_NAME'] = host
     app.config['SQLALCHEMY_DATABASE_URI'] = database_uri
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     storage_adapter = storage_adapter_factory(app)
     app.register_blueprint(
         create_translation_page_blueprint(

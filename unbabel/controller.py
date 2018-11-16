@@ -2,7 +2,7 @@ from typing import List
 
 import attr
 
-from unbabel.types import SupportsPerformingTranslations, Translation, SupportsStoringUids
+from unbabel.types import SupportsPerformingTranslations, Translation, SupportsStoringUids, Uid
 
 
 @attr.s(frozen=True, auto_attribs=True)
@@ -11,19 +11,26 @@ class Controller:
     storage_adapter:     SupportsStoringUids
 
     def get_translations(self) -> List[Translation]:
-        return get_translations(translation_adapter=self.translation_adapter)
+        return get_translations(
+            uids=self.storage_adapter.retrieve_all_uids(),
+            translation_adapter=self.translation_adapter
+        )
 
     def submit_translation(self, text: str) -> None:
-        return submit_translation(text=text, translation_adapter=self.translation_adapter)
+        return submit_translation(
+            text=text,
+            translation_adapter=self.translation_adapter,
+            storage_adapter=self.storage_adapter,
+        )
 
 
 def get_translations(
+        uids:                List[Uid],
         translation_adapter: SupportsPerformingTranslations
 ) -> List[Translation]:
-    all_translations = translation_adapter.get_all_translations()
     full_translations = [translation for translation in list(map(
-        lambda t: translation_adapter.get_translation(t.uid),
-        all_translations,
+        translation_adapter.get_translation,
+        uids,
     )) if translation is not None]
 
     # filter out None values before comparing
@@ -42,6 +49,8 @@ def get_translations(
 
 def submit_translation(
         text:                str,
-        translation_adapter: SupportsPerformingTranslations
+        translation_adapter: SupportsPerformingTranslations,
+        storage_adapter:     SupportsStoringUids
 ) -> None:
-    translation_adapter.translate(text=text)
+    uid = translation_adapter.translate(text=text)
+    storage_adapter.store_uid(uid)
