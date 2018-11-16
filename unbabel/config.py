@@ -64,11 +64,11 @@ def dev_config() -> Flask:
     )
 
 
-def create_test_db_uri():
+def create_test_db_uri() -> str:
     return 'postgresql://docker:docker@localhost:5555/postgres'
 
 
-def create_storage_adapter(app: Flask):
+def create_storage_adapter(app: Flask) -> SqlAlchemyStorageAdapter:
     db.init_app(app)
     # TODO: remove this when we have migrations
     with app.app_context():
