@@ -1,5 +1,5 @@
 from behave import *
-from hamcrest import assert_that, equal_to
+from hamcrest import assert_that, equal_to, has_item
 
 from unbabel.config import test_config, create_storage_adapter
 from unbabel.storage.sqlalchemy.storage_adapter import SqlAlchemyStorageAdapter
@@ -46,3 +46,15 @@ def step_impl(context, uid):
     storage_adapter: SupportsStoringUids = context.storage_adapter
     with context.app.app_context():
         storage_adapter.store_uid(uid)
+
+
+@when("I retrieve all saved translations")
+def step_impl(context):
+    storage_adapter: SupportsStoringUids = context.storage_adapter
+    with context.app.app_context():
+        context.uids = storage_adapter.retrieve_all_uids()
+
+
+@then('I get uid "{uid}"')
+def step_impl(context, uid):
+    assert_that(context.uids, has_item(uid))
