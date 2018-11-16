@@ -1,3 +1,4 @@
 .idea/
 .mypy_cache/
 envs/
+__pycache__/
