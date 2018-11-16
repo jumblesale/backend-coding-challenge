@@ -12,6 +12,8 @@ attrs = "*"
 pyhamcrest = "*"
 flask = "*"
 behave = "*"
+flask-sqlalchemy = "*"
+"psycopg2" = "*"
 
 [dev-packages]
 
