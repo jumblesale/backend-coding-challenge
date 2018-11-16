@@ -1,24 +1,35 @@
 import os
+from typing import Callable
 
 from flask import Flask
 
+from unbabel.db import db
 from unbabel.controller import Controller as TranslationController
 from unbabel.blueprint import create_translation_page_blueprint
+from unbabel.storage.sqlalchemy.storage_adapter import SqlAlchemyStorageAdapter
 from unbabel.translation.test_translation_adapter import TestTranslationAdapter
 from unbabel.translation.unbabel_adapter import UnbabelAdapter
-from unbabel.types import SupportsPerformingTranslations
+from unbabel.types import SupportsPerformingTranslations, SupportsStoringUids
 
 
 def _create_flask_app(
-        host:                str,
-        translation_adapter: SupportsPerformingTranslations,
-        debug:               bool = False,
+        host:                    str,
+        translation_adapter:     SupportsPerformingTranslations,
+        storage_adapter_factory: Callable[[Flask], SupportsStoringUids],
+        database_uri:            str,
+        debug:                   bool = False,
 ) -> Flask:
     app = Flask(__name__)
     app.debug = debug
     app.config['SERVER_NAME'] = host
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_uri
+    storage_adapter = storage_adapter_factory(app)
     app.register_blueprint(
-        create_translation_page_blueprint(TranslationController(translation_adapter))
+        create_translation_page_blueprint(
+            TranslationController(
+                translation_adapter=translation_adapter,
+                storage_adapter=storage_adapter,
+            ))
     )
 
     return app
@@ -28,6 +39,8 @@ def test_config() -> Flask:
     return _create_flask_app(
         host='localhost:8888',
         translation_adapter=TestTranslationAdapter(),
+        storage_adapter_factory=create_storage_adapter,
+        database_uri=create_test_db_uri(),
         debug=True,
     )
 
@@ -44,5 +57,20 @@ def dev_config() -> Flask:
     return _create_flask_app(
         host='localhost:8888',
         translation_adapter=translation_adapter,
+        storage_adapter_factory=create_storage_adapter,
+        database_uri=create_test_db_uri(),
         debug=True,
     )
+
+
+def create_test_db_uri():
+    return 'postgresql://docker:docker@localhost:5555/postgres'
+
+
+def create_storage_adapter(app: Flask):
+    db.init_app(app)
+    # TODO: remove this when we have migrations
+    with app.app_context():
+        db.drop_all()
+        db.create_all()
+    return SqlAlchemyStorageAdapter(db=db)

@@ -1,7 +1,9 @@
 from behave import *
 from hamcrest import assert_that, equal_to
 
-from unbabel.config import test_config
+from unbabel.config import test_config, create_storage_adapter
+from unbabel.storage.sqlalchemy.storage_adapter import SqlAlchemyStorageAdapter
+from unbabel.types import SupportsStoringUids
 
 
 @given("I have a test application")
@@ -31,3 +33,16 @@ def step_impl(context, key, value):
 @when('I "post" that data to "{path}"')
 def step_impl(context, path):
     context.response = context.client.post(path, data=context.data)
+
+
+@given("I have a storage adapter")
+def step_impl(context):
+    context.app = app = test_config()
+    context.storage_adapter = create_storage_adapter(app)
+
+
+@given('I create a new translation with uid "{uid}"')
+def step_impl(context, uid):
+    storage_adapter: SupportsStoringUids = context.storage_adapter
+    with context.app.app_context():
+        storage_adapter.store_uid(uid)

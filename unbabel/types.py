@@ -54,3 +54,11 @@ class SupportsPerformingTranslations(Protocol):
 
     def get_all_translations(self) -> List[Translation]:
         ...
+
+
+class SupportsStoringUids(Protocol):
+    def store_uid(self, uid: Uid) -> None:
+        ...
+
+    def retrieve_all_uids(self) -> List[Uid]:
+        ...

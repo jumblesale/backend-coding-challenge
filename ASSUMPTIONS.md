@@ -12,3 +12,5 @@
   assumed this is longest to shortest.
 * Performance is not the most important thing. It would be easy to parallelise the calls to the single
   get endpoint, but this would make the code more complex than the serial solution.
+* We don't need migrations, and for testing, dropping and recreating the database
+  is good enough for now.

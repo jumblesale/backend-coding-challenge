@@ -2,12 +2,13 @@ from typing import List
 
 import attr
 
-from unbabel.types import SupportsPerformingTranslations, Translation
+from unbabel.types import SupportsPerformingTranslations, Translation, SupportsStoringUids
 
 
 @attr.s(frozen=True, auto_attribs=True)
 class Controller:
     translation_adapter: SupportsPerformingTranslations
+    storage_adapter:     SupportsStoringUids
 
     def get_translations(self) -> List[Translation]:
         return get_translations(translation_adapter=self.translation_adapter)
